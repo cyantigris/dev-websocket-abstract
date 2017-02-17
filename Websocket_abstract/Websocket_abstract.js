@@ -1,17 +1,6 @@
-let Ws = null,
-    socketType = null;
-
-if(typeof Websocket !== 'undefined'){
-    socketType = 'client';
-}else{
-    Ws = require('ws').Server;
-    socketType = 'server';
-}
-
-
 module.exports = class Websocket_abstract{
-    constructor(port,host,debug){
-        this._socket = socketType === 'server' ? new Ws({port:port}) : new Websocket(`${host}:${port}`);
+    constructor(socket,port,host,debug){
+        this._socket = socket;
         this._port = port;
         this._debugMode = debug === undefined ? false : debug;
         this._clientList = [];
