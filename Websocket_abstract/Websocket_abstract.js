@@ -14,17 +14,17 @@ module.exports = class Websocket_abstract{
 
     _init(){
         let _this = this;
-
-        if(typeof(WebSocket)!==undefined){
+        
+        if(typeof(WebSocket) !== 'undefined'){
             let cb = function(_socket){
-                _this._clientInit(_socket);
+                _this._clientInit.call(_this,_socket);
             }
             this._type = 'client';
             this._socket.onopen = cb;
         }else{
             this._type = 'server';
             this._socket.on('connection',(_socket)=>{
-                this._serverInit(_socket);
+                _this._serverInit.call(_this,_socket);
             });
         }
         console.log(`websocket started on port: ${this._port}`);
@@ -34,35 +34,39 @@ module.exports = class Websocket_abstract{
         let _this = this,
             onMsgHandle = this._getProp('_onMsg'),
             onConnectionHandle = this._getProp('_onConnection'),
-            onCloseHandle = this._getProp('_onClose');
+            onCloseHandle = this._getProp('_onClose'),
+            _clientList = _this._getProp('_clientList');
 
-        if(this._getProp('_type') === 'server'){
-            _this._clientList.push(_socket);
-        }
+        _clientList.push(_socket);
+        _this._setProp('_clientList',_clientList);
 
-        if(onConnectionHandle !== null){
+        if(onConnectionHandle !== null)
             onConnectionHandle.call(_this,_socket);
-        }
 
         _socket.on('message',(msg)=>{
             
-            if(onMsgHandle !== null){
+            if(onMsgHandle !== null)
                 onMsgHandle.call(_this,msg);
-            }
 
-            if(_this._getProp('_debugMode')){
+            if(_this._getProp('_debugMode'))
                 console.log('msg recevied:',msg);
-            }
         });
 
         _socket.on('close',(msg)=>{
-            if(onCloseHandle !== null){
-                onCloseHandle.call(_this,msg);
-            }
+            let _clientList = _this._getProp('_clientList'),
+                _newList = [];
 
-            if(_this._getProp('_debugMode')){
-                console.log('disconnented:',msg);
+            for(let i  of _clientList){
+                if(_socket !== i)  
+                    _newList.push(i);
             }
+            _this._setProp('_newList',_clientList);
+
+            if(onCloseHandle !== null) 
+                onCloseHandle.call(_this,msg);
+
+            if(_this._getProp('_debugMode'))
+                console.log('disconnented:',msg);
         });
     }
 
@@ -72,33 +76,29 @@ module.exports = class Websocket_abstract{
             onOpenHandle = this._getProp('_onOpen'),
             onCloseHandle = this._getProp('_onClose');
 
-        if(_this._getProp('_debugMode')){
+        if(_this._getProp('_debugMode'))
             console.log('socket connect:',_socket);
-        }
 
-        if(onOpenHandle !== null){
+        if(onOpenHandle !== null)
             onOpenHandle.call(_this,_socket);
-        }
 
-        this._socket.onMessage = function(){
-            if(onMsgHandle !== null){
+        this._socket.addEventListener('message', (msg)=>{
+            if(onMsgHandle !== null)
                 onMsgHandle.call(_this,msg);
-            }
 
-            if(_this._getProp('_debugMode')){
-                console.log('msg recevied:',msg);
-            }
-        };
+            if(_this._getProp('_debugMode'))
+                console.log('msg recevied:',msg.data);
 
-        this._socket.onClose = function(){
-            if(onCloseHandle !== null){
+            this._socket.send(new Float32Array([8,6,6456,4234]));
+        },false);
+
+        this._socket.addEventListener('close', (msg)=>{
+            if(onCloseHandle !== null)
                 onCloseHandle.call(_this,msg);
-            }
 
-            if(_this._getProp('_debugMode')){
+            if(_this._getProp('_debugMode'))
                 console.log('disconnented:',msg);
-            }
-        };
+        },false);
     }
 
     _getProp(key){
@@ -106,8 +106,7 @@ module.exports = class Websocket_abstract{
     }
 
     _setProp(key,value){
-        if(this[key]!==undefined){
+        if(this[key]!==undefined)
             this[key] = value;
-        }
     }
 }
