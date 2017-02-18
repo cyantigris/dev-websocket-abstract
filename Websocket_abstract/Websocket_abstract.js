@@ -46,10 +46,10 @@ module.exports = class Websocket_abstract{
         _socket.on('message',(msg)=>{
             
             if(onMsgHandle !== null)
-                onMsgHandle.call(_this,msg);
+                onMsgHandle.call(_this,_socket,msg);
 
             if(_this._getProp('_debugMode'))
-                console.log('msg recevied:',msg);
+                console.log(`msg recevied:`,msg);
         });
 
         _socket.on('close',(msg)=>{
@@ -87,9 +87,7 @@ module.exports = class Websocket_abstract{
                 onMsgHandle.call(_this,msg);
 
             if(_this._getProp('_debugMode'))
-                console.log('msg recevied:',msg.data);
-
-            this._socket.send(new Float32Array([8,6,6456,4234]));
+                console.log(`${msg.timeStamp} msg recevied:`,msg);
         },false);
 
         this._socket.addEventListener('close', (msg)=>{
