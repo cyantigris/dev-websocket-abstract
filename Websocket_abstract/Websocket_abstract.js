@@ -12,6 +12,15 @@ module.exports = class Websocket_abstract{
         this._init();
     }
 
+    getProp(key){
+        return this[key] !== undefined ? this[key] : null;
+    }
+
+    setProp(key,value){
+        if(this[key]!==undefined)
+            this[key] = value;
+    }
+
     _init(){
         let _this = this;
         
@@ -48,11 +57,11 @@ module.exports = class Websocket_abstract{
 
         _socket.on('message',(msg)=>{
             
-            if(onMsgHandle !== null)
-                onMsgHandle.call(_this,msg,_socket);
-
             if(_this.getProp('_debugMode'))
                 console.log(`msg recevied:`,msg);
+
+            if(onMsgHandle !== null)
+                onMsgHandle.call(_this,msg,_socket);
         });
 
         _socket.on('close',(msg)=>{
@@ -65,11 +74,11 @@ module.exports = class Websocket_abstract{
             }
             _this.setProp('_newList',_clientList);
 
-            if(onCloseHandle !== null) 
-                onCloseHandle.call(_this,msg);
-
             if(_this.getProp('_debugMode'))
                 console.log('disconnented:',msg);
+
+            if(onCloseHandle !== null) 
+                onCloseHandle.call(_this,msg);
         });
     }
 
@@ -86,28 +95,20 @@ module.exports = class Websocket_abstract{
             onOpenHandle.call(_this,_socket);
 
         this._socket.addEventListener('message', (msg)=>{
-            if(onMsgHandle !== null)
-                onMsgHandle.call(_this,msg);
 
             if(_this.getProp('_debugMode'))
                 console.log(`${msg.timeStamp} msg recevied:`,msg);
+
+            if(onMsgHandle !== null)
+                onMsgHandle.call(_this,msg);
         },false);
 
         this._socket.addEventListener('close', (msg)=>{
-            if(onCloseHandle !== null)
-                onCloseHandle.call(_this,msg);
-
             if(_this.getProp('_debugMode'))
                 console.log('disconnented:',msg);
+            
+            if(onCloseHandle !== null)
+                onCloseHandle.call(_this,msg);
         },false);
-    }
-
-    getProp(key){
-        return this[key] !== undefined ? this[key] : null;
-    }
-
-    setProp(key,value){
-        if(this[key]!==undefined)
-            this[key] = value;
     }
 }
