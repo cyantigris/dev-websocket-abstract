@@ -1,6 +1,6 @@
 {
   "name": "dev-websocket-abstract",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "Websocket_abstract/Websocket_abstract",
   "scripts": {
