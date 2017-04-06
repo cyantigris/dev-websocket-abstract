@@ -24,7 +24,7 @@ module.exports = class Websocket_abstract{
     _init(){
         let _this = this;
         
-        if(typeof(WebSocket) !== 'undefined'){
+        if(typeof(WebSocket) !== 'undefined'){   //default property from browser, type: global
             let cb = function(_socket){
                 _this._clientInit.call(_this,_socket);
             }
